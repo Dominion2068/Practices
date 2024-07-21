@@ -1,0 +1,12 @@
+{
+    "Aaron Optometrists": {
+        "MD/CEO": {
+            "name": "John Smith",
+            "reports": [
+                "CFO",
+                "COO",
+                "ETC."
+            ]
+        }
+    }
+}

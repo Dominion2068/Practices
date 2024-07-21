@@ -14,7 +14,14 @@ from io import BytesIO
 import base64
 
 st.set_page_config(layout = 'wide', page_title="Hakim")
-
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 @st.cache_data
 def load_excel(file_path):
@@ -50,26 +57,10 @@ def shorten_practice_name(name):
         return f"{parts[0]} {parts[hyphen_index + 1]}"
     return parts[0]
 
-# Path to your Excel file
-excel_file_path = 'C:/Users/akins/Documents/Dominion/hak2/Coy Details.xlsx'
-practice_coords_file_path = 'C:/Users/akins/Documents/Dominion/hak2/Practice Coords.csv'
-
-
-# Load the Excel file
-df = pd.read_excel(excel_file_path)
-
-
-# # Function to format website links
-# def format_website(url):
-#     if pd.isna(url):
-#         return ''
-#     if not url.startswith(('http://', 'https://')):
-#         return 'http://' + url
-#     return url
-
-
+# Paths to your files
+excel_file_path = 'Coy Details.xlsx'
 json_file_path = 'organization_structures.json'
-
+practice_coords_file_path = 'Practice Coords.csv'
 
 # Load the Excel and CSV files
 df = load_excel(excel_file_path)
