@@ -12,6 +12,7 @@ import socketserver
 import plotly.express as px
 from io import BytesIO
 import base64
+import streamlit.components.v1 as components
 
 st.set_page_config(layout = 'wide', page_title="Hakim")
 hide_st_style = """
@@ -248,14 +249,16 @@ def main():
             m = create_map(st.session_state.map_style)
             folium_static(m, width=300, height=200)
 
-            # Provide a link to download the full-size map
+            # Save the map to an HTML file
             map_file = 'map.html'
             m.save(map_file)
-            with open(map_file, 'rb') as f:
-                map_data = f.read()
-            b64 = base64.b64encode(map_data).decode()
-            href = f'<a href="data:text/html;base64,{b64}" download="full_size_map.html">Download Full-Size Map</a>'
-            st.markdown(href, unsafe_allow_html=True)
+            with open(map_file, 'r') as f:
+                map_html = f.read()
+
+            # Create a download link
+            map_b64 = base64.b64encode(map_html.encode()).decode()
+            map_link = f'<a href="data:text/html;base64,{map_b64}" target="_blank">Open Full-Size Map</a>'
+            st.markdown(map_link, unsafe_allow_html=True)
 
             # Adjust the CSS to make the dropdown the same width as the map
             st.markdown(
