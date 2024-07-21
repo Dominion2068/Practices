@@ -182,19 +182,6 @@ def admin_page():
                         save_organizations()
                         st.success(f"Deleted {delete_role} from {selected_practice}")
 
-def start_server(port):
-    PORT = port
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print(f"Serving at port {PORT}")
-        httpd.serve_forever()
-
-def get_free_port():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('', 0))
-        return s.getsockname()[1]
-
 def main():
     st.title("Practice Details and Organizational Structure")
 
@@ -261,19 +248,14 @@ def main():
             m = create_map(st.session_state.map_style)
             folium_static(m, width=300, height=200)
 
-            # Provide a link to open the full-size map in a new tab
-            port = get_free_port()
-            st.markdown(
-                f'<a href="http://localhost:{port}/map.html" target="_blank" style="font-size:14px;">Open Full-Size Map</a>',
-                unsafe_allow_html=True
-            )
-
-            # Save the map to an HTML file
+            # Provide a link to download the full-size map
             map_file = 'map.html'
             m.save(map_file)
-
-            # Start the server in a separate thread
-            threading.Thread(target=start_server, args=(port,), daemon=True).start()
+            with open(map_file, 'rb') as f:
+                map_data = f.read()
+            b64 = base64.b64encode(map_data).decode()
+            href = f'<a href="data:text/html;base64,{b64}" download="full_size_map.html">Download Full-Size Map</a>'
+            st.markdown(href, unsafe_allow_html=True)
 
             # Adjust the CSS to make the dropdown the same width as the map
             st.markdown(
