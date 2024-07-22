@@ -12,17 +12,9 @@ import socketserver
 import plotly.express as px
 from io import BytesIO
 import base64
-import streamlit.components.v1 as components
 
 st.set_page_config(layout = 'wide', page_title="Hakim")
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+
 
 @st.cache_data
 def load_excel(file_path):
@@ -58,10 +50,26 @@ def shorten_practice_name(name):
         return f"{parts[0]} {parts[hyphen_index + 1]}"
     return parts[0]
 
-# Paths to your files
-excel_file_path = 'Coy Details.xlsx'
+# Path to your Excel file
+excel_file_path = 'C:/Users/akins/Documents/Dominion/hak2/Coy Details.xlsx'
+practice_coords_file_path = 'C:/Users/akins/Documents/Dominion/hak2/Practice Coords.csv'
+
+
+# Load the Excel file
+df = pd.read_excel(excel_file_path)
+
+
+# # Function to format website links
+# def format_website(url):
+#     if pd.isna(url):
+#         return ''
+#     if not url.startswith(('http://', 'https://')):
+#         return 'http://' + url
+#     return url
+
+
 json_file_path = 'organization_structures.json'
-practice_coords_file_path = 'Practice Coords.csv'
+
 
 # Load the Excel and CSV files
 df = load_excel(excel_file_path)
@@ -183,6 +191,19 @@ def admin_page():
                         save_organizations()
                         st.success(f"Deleted {delete_role} from {selected_practice}")
 
+def start_server(port):
+    PORT = port
+    Handler = http.server.SimpleHTTPRequestHandler
+
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print(f"Serving at port {PORT}")
+        httpd.serve_forever()
+
+def get_free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0))
+        return s.getsockname()[1]
+
 def main():
     st.title("Practice Details and Organizational Structure")
 
@@ -249,16 +270,19 @@ def main():
             m = create_map(st.session_state.map_style)
             folium_static(m, width=300, height=200)
 
+            # Provide a link to open the full-size map in a new tab
+            port = get_free_port()
+            st.markdown(
+                f'<a href="http://localhost:{port}/map.html" target="_blank" style="font-size:14px;">Open Full-Size Map</a>',
+                unsafe_allow_html=True
+            )
+
             # Save the map to an HTML file
             map_file = 'map.html'
             m.save(map_file)
-            with open(map_file, 'r') as f:
-                map_html = f.read()
 
-            # Create a download link
-            map_b64 = base64.b64encode(map_html.encode()).decode()
-            map_link = f'<a href="data:text/html;base64,{map_b64}" target="_blank">Open Full-Size Map</a>'
-            st.markdown(map_link, unsafe_allow_html=True)
+            # Start the server in a separate thread
+            threading.Thread(target=start_server, args=(port,), daemon=True).start()
 
             # Adjust the CSS to make the dropdown the same width as the map
             st.markdown(
