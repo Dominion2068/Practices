@@ -26,8 +26,10 @@ hide_st_style = """
     /* Hide the header */
     header {visibility: hidden;}
     
-    /* Optionally hide the hamburger menu (if present) */
-    .css-1kyxreq.edgvbvh3 {visibility: hidden;}
+    /* Hide the "View Profile" icon */
+    button[aria-label="View profile"] {
+        visibility: hidden;
+    }
     </style>
     """
 
